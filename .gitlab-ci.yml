@@ -11,10 +11,10 @@ include:
  - project: "osdu/platform/ci-cd-pipelines"
    file: "cloud-providers/azure.yml"
 
-- project: "osdu/platform/ci-cd-pipelines"
-  file: "scanners/gitlab-ultimate.yml"
+ - project: "osdu/platform/ci-cd-pipelines"
+   file: "scanners/gitlab-ultimate.yml"
 
-- local: "devops/azure/override-stages.yml" 
+ - local: "devops/azure/override-stages.yml" 
 
 .maven:
   image: maven:3.9.3-eclipse-temurin-17
