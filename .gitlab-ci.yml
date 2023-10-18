@@ -1,3 +1,7 @@
+include:
+ - project: "osdu/platform/ci-cd-pipelines"
+   file: "standard-setup.yml"
+
 stages:
   - review
   - build
@@ -5,33 +9,7 @@ stages:
   - containerize
   - scan
 
-workflow:
-  rules:
-    # For branches that are prefixed with "trusted-", we expect they will be
-    # triggered as a child job (aka a 'pipeline' source) as part of a merge
-    # request. For all other cases, such as normal branch updates, suppress the
-    # pipeline to avoid duplicate work.
-    - if: $CI_COMMIT_REF_NAME =~ /^trusted-/ && $CI_PIPELINE_SOURCE != 'pipeline'
-      when: never
-
-    # If the merge request has specifically asked not to generate a pipeline,
-    # then don't. Note: Only detached pipelines have CI_MERGE_REQUEST_LABELS
-    # defined, so this shouldn't suppress normal pipelines.
-    - if: $CI_MERGE_REQUEST_LABELS =~ /no-detached-pipeline/
-      when: never
-
-    # If the pipelines are from release or tag commits then set azure deployment env variable value   
-    - if: $CI_COMMIT_BRANCH =~ /^release/ || $CI_COMMIT_TAG
-      variables:
-        DEPLOY_ENVIRONMENT_AZURE: "AZURE_STAGE"
-        
-    # In all other cases, run the pipeline normally
-    - when: always
-
-
-
 include:
-
  - project: "osdu/platform/ci-cd-pipelines"
    file: "build/maven.yml"
 
