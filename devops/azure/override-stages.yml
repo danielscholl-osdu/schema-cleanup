@@ -1,13 +1,9 @@
 azure_containerize_helm:
   needs: []
-  variables:
-    AZURE_HELM_SUBDIR: osdu-ddms/standard-ddms
+  script:
+      echo 'empty'
   only:
-    variables:
-      - $AZURE == '1'
-  except:
-    variables:
-      - $AZURE_SKIP_DEPLOY == 'true'
+      - $DISABLED == 'true'
 
 azure_deploy:
   needs: []

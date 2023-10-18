@@ -6,6 +6,9 @@ include:
    file: "build/maven.yml"
 
  - project: "osdu/platform/ci-cd-pipelines"
+   file: "scanners/fossa-maven.yml"
+
+ - project: "osdu/platform/ci-cd-pipelines"
    file: "cloud-providers/azure.yml"
 
  - local: "devops/azure/override-stages.yml" 
