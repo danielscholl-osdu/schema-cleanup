@@ -7,7 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan({"org.opengroup.osdu"})
 @SpringBootApplication
 public class SchemaCleanupApplication {
-public static void main(String[] args){
-    SpringApplication.run(SchemaCleanupApplication.class, args);
-}
+    public static void main(String[] args) {
+        SpringApplication.run(SchemaCleanupApplication.class, args);
+    }
 }

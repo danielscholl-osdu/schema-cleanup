@@ -1,7 +1,6 @@
 package org.opengroup.osdu.azure.cleanup.security;
 
 
-
 import com.azure.spring.autoconfigure.aad.UserPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,18 +24,14 @@ public class AuthorizationServiceForServiceAdminImpl implements IAuthorizationSe
     public boolean isDomainAdminServiceAccount() {
         final Object principal = getUserPrincipal();
 
-        if (!(principal instanceof UserPrincipal)) {
+        if (!(principal instanceof final UserPrincipal userPrincipal)) {
             return false;
         }
 
-        final UserPrincipal userPrincipal = (UserPrincipal) principal;
         String issuer = userPrincipal.getClaim("iss").toString();
 
         UserType type = getType(userPrincipal);
-        if (type == UserType.SERVICE_PRINCIPAL && issuedByAAD(issuer)) {
-            return true;
-        }
-        return false;
+        return type == UserType.SERVICE_PRINCIPAL && issuedByAAD(issuer);
     }
 
     /***

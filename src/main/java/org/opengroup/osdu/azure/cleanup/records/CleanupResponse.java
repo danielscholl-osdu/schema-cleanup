@@ -4,5 +4,5 @@ import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
-public record CleanupResponse(int size, List<String> schemaIds, HttpStatus statusCode) {
+public record CleanupResponse(int schemasDeletedSize, List<String> schemaIds, HttpStatus statusCode) {
 }

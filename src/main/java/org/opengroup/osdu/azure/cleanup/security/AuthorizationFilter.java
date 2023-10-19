@@ -15,7 +15,7 @@ public class AuthorizationFilter {
     @Autowired
     private IAuthorizationServiceForServiceAdmin authorizationService;
 
-    public boolean hasPermissions()  {
+    public boolean hasPermissions() {
         headers.put(DpsHeaders.USER_EMAIL, "ServiceAdminUser");
         return authorizationService.isDomainAdminServiceAccount();
     }
