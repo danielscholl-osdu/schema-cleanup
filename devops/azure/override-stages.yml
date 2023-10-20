@@ -53,3 +53,41 @@ azure-publish:
   rules:
     - if: $DISABLED == 'true'
       when: never
+
+
+azure_containerize:
+  script:
+    - git clone ${AZURE_CONTAINERIZE_REPOSITORY}
+    - cp ./service-base-image/java/Dockerfile ./Dockerfile
+    - |
+      if [ "$AZURE_SERVICE"  == "entitlements" ]; then
+        TARGET=$(find ./target -name '*.jar' |head -n 1)
+      else
+        TARGET=$(find ./target -name '*-spring-boot.jar' |head -n 1)
+      fi
+
+    # Gitlab Container Registry
+    - echo "Startup Jar is $TARGET"
+    - |
+      docker build \
+      --build-arg JAR_FILE=$TARGET \
+      --build-arg APPLICATIONINSIGHTS_INSTRUMENTATION_KEY=$AZURE_AD_APPINSIGHTS_KEY \
+      --build-arg AZURE_MSI_ENABLED=false \
+      --build-arg JAVA_OPTS="-javaagent:/opt/agents/applicationinsights-agent.jar -DAPPINSIGHTS_LOGGING_ENABLED=true" \
+      -t $CI_REGISTRY_IMAGE/$SHA_IMAGE .
+    - docker push ${CI_REGISTRY_IMAGE}/$SHA_IMAGE
+    - docker tag $CI_REGISTRY_IMAGE/$SHA_IMAGE $CI_REGISTRY_IMAGE/$LATEST_IMAGE
+    - docker push ${CI_REGISTRY_IMAGE}/$LATEST_IMAGE
+
+    # Azure Container Registry
+    - az acr login -n $AZURE_REGISTRY
+    - docker tag $CI_REGISTRY_IMAGE/$SHA_IMAGE ${AZURE_REGISTRY}.azurecr.io/$SHA_IMAGE
+    - docker push ${AZURE_REGISTRY}.azurecr.io/$SHA_IMAGE
+    - docker tag $CI_REGISTRY_IMAGE/$SHA_IMAGE ${AZURE_REGISTRY}.azurecr.io/$LATEST_IMAGE
+    - docker push ${AZURE_REGISTRY}.azurecr.io/$LATEST_IMAGE
+
+    - |
+      if [ ! -z "$CI_COMMIT_TAG" ]; then
+        docker tag $CI_REGISTRY_IMAGE/$SHA_IMAGE ${AZURE_REGISTRY}.azurecr.io/$RELEASE_IMAGE
+        docker push ${AZURE_REGISTRY}.azurecr.io/$RELEASE_IMAGE
+      fi
