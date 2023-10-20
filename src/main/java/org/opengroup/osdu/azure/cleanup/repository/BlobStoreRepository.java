@@ -7,6 +7,7 @@ import com.azure.storage.blob.batch.BlobBatchClientBuilder;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.storage.common.StorageSharedKeyCredential;
 import com.azure.storage.common.policy.RequestRetryOptions;
+import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.azure.cleanup.config.BlobConfig;
 import org.opengroup.osdu.azure.cleanup.records.CosmosResponseSchemaObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Slf4j
 @Repository
 public class BlobStoreRepository {
 
@@ -50,7 +52,7 @@ public class BlobStoreRepository {
 
         getBlobBatchClient().deleteBlobs(blobUrls, DeleteSnapshotsOptionType.INCLUDE)
                 .forEach(response ->
-                        System.out.printf("Deleting blob with URL %s completed with status code %d%n",
+                        log.info("Deleting blob with URL %s completed with status code %d%n",
                                 response.getRequest().getUrl(), response.getStatusCode())
                 );
     }

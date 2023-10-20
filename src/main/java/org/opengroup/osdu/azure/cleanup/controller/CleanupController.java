@@ -19,8 +19,7 @@ public class CleanupController {
     @PreAuthorize("@authorizationFilter.hasPermissions()")
     public ResponseEntity<CleanupResponse> cleanupSchemas() {
         CleanupResponse cleanupResponse = cleanupService.cleanupRecords();
-        ResponseEntity<CleanupResponse> response = new ResponseEntity<>(cleanupResponse, cleanupResponse.statusCode());
-        return response;
+        return new ResponseEntity<>(cleanupResponse, cleanupResponse.statusCode());
     }
 
 }

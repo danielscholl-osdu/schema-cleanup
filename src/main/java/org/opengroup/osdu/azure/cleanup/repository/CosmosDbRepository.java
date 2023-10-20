@@ -3,6 +3,7 @@ package org.opengroup.osdu.azure.cleanup.repository;
 import com.azure.cosmos.CosmosClient;
 import com.azure.cosmos.CosmosClientBuilder;
 import com.azure.cosmos.CosmosContainer;
+import com.azure.cosmos.CosmosException;
 import com.azure.cosmos.models.CosmosBulkOperations;
 import com.azure.cosmos.models.CosmosItemOperation;
 import com.azure.cosmos.models.CosmosQueryRequestOptions;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.opengroup.osdu.azure.cleanup.config.CosmosConfig;
 import org.opengroup.osdu.azure.cleanup.config.SchemaQueryParameters;
 import org.opengroup.osdu.azure.cleanup.records.CosmosResponseSchemaObject;
+import org.opengroup.osdu.core.common.model.http.AppException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -37,12 +39,16 @@ public class CosmosDbRepository {
     }
 
     public List<CosmosResponseSchemaObject> getRecordsToDelete() {
-        List<CosmosResponseSchemaObject> filteredRecords = new ArrayList<>();
-        CosmosQueryRequestOptions queryOptions = new CosmosQueryRequestOptions();
-        String selectQuery = String.format("SELECT c.id, c.partitionId FROM c WHERE CONTAINS(c.id, \"%s\")", queryParameters.getId());
-        getCosmosContainer().queryItems(selectQuery, queryOptions, CosmosResponseSchemaObject.class).
-                forEach(filteredRecords::add);
-        return filteredRecords;
+        try {
+            List<CosmosResponseSchemaObject> filteredRecords = new ArrayList<>();
+            CosmosQueryRequestOptions queryOptions = new CosmosQueryRequestOptions();
+            String selectQuery = String.format("SELECT c.id, c.partitionId FROM c WHERE CONTAINS(c.id, \"%s\")", queryParameters.getId());
+            getCosmosContainer().queryItems(selectQuery, queryOptions, CosmosResponseSchemaObject.class).
+                    forEach(filteredRecords::add);
+            return filteredRecords;
+        } catch (CosmosException e) {
+            throw new AppException(e.getStatusCode(), "Exception while fetching records from the cosmos", e.getMessage());
+        }
     }
 
     public void bulkDeleteItems(List<CosmosResponseSchemaObject> listToDelete) {

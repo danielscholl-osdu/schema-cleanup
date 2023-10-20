@@ -17,19 +17,17 @@ import java.util.List;
 
 @Service
 public class CleanupService {
-
-    private final List<String> schemaIdsDeleted = new ArrayList<>();
-    private List<CosmosResponseSchemaObject> schemasToBeDeleted = new ArrayList<>();
     @Autowired
-    private CosmosDbRepository cosmosDbRepostory;
+    private CosmosDbRepository cosmosDbRepository;
     @Autowired
     private BlobStoreRepository blobStoreRepository;
 
     public CleanupResponse cleanupRecords() {
-        fetchSchemasToDelete();
-        if (schemasToBeDeleted.size() > 0) {
-            deleteFromCosmosInBatches();
-            deleteFromBlobStorageInBatches();
+        List<CosmosResponseSchemaObject> schemasToBeDeleted  = cosmosDbRepository.getRecordsToDelete();
+        List<String> schemaIdsDeleted = new ArrayList<>();
+        if (!schemasToBeDeleted.isEmpty()) {
+            deleteFromCosmosInBatches(schemasToBeDeleted);
+            deleteFromBlobStorageInBatches(schemasToBeDeleted);
             schemasToBeDeleted.stream()
                     .parallel()
                     .forEach(item -> schemaIdsDeleted.add(item.id()));
@@ -37,7 +35,7 @@ public class CleanupService {
         return new CleanupResponse(schemaIdsDeleted.size(), schemaIdsDeleted, HttpStatus.OK);
     }
 
-    private void deleteFromBlobStorageInBatches() {
+    private void deleteFromBlobStorageInBatches(List<CosmosResponseSchemaObject> schemasToBeDeleted) {
         try {
             List<List<CosmosResponseSchemaObject>> listsToDelete = Lists.partition(schemasToBeDeleted, 100);
             for (List<CosmosResponseSchemaObject> listToDelete : listsToDelete) {
@@ -46,26 +44,18 @@ public class CleanupService {
         } catch (BlobStorageException e) {
             throw new AppException(e.getStatusCode(), "Exception while deleting the blob", e.getMessage());
         } catch (Exception e) {
-            throw new AppException(500, "Exception while deleting the blob", "Exception while deleting the blob" + e.getMessage());
+            throw new AppException(500, "Unknown Exception while deleting the blob", "An unknown Exception occurred while deleting the blob: " + e.getMessage());
         }
     }
 
-    private void deleteFromCosmosInBatches() {
+    private void deleteFromCosmosInBatches(List<CosmosResponseSchemaObject> schemasToBeDeleted) {
         try {
             List<List<CosmosResponseSchemaObject>> listsToDelete = Lists.partition(schemasToBeDeleted, 100);
             for (List<CosmosResponseSchemaObject> listToDelete : listsToDelete) {
-                cosmosDbRepostory.bulkDeleteItems(listToDelete);
+                cosmosDbRepository.bulkDeleteItems(listToDelete);
             }
         } catch (CosmosException e) {
             throw new AppException(e.getStatusCode(), "Exception while deleting from the cosmos", e.getMessage());
-        }
-    }
-
-    private void fetchSchemasToDelete() {
-        try {
-            schemasToBeDeleted = cosmosDbRepostory.getRecordsToDelete();
-        } catch (CosmosException e) {
-            throw new AppException(e.getStatusCode(), "Exception while fetching records from the cosmos", e.getMessage());
         }
     }
 }
