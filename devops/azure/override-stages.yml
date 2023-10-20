@@ -69,7 +69,7 @@ azure_containerize:
       --build-arg JAR_FILE=$TARGET \
       --build-arg APPLICATIONINSIGHTS_INSTRUMENTATION_KEY=$AZURE_AD_APPINSIGHTS_KEY \
       --build-arg AZURE_MSI_ENABLED=false \
-      --build-arg JAVA_OPTS="-javaagent:/opt/agents/applicationinsights-agent.jar -DAPPINSIGHTS_LOGGING_ENABLED=true" \
+      --build-arg JAVA_OPTS="-DAPPINSIGHTS_LOGGING_ENABLED=true" \
       -t $CI_REGISTRY_IMAGE/$SHA_IMAGE .
     - docker push ${CI_REGISTRY_IMAGE}/$SHA_IMAGE
     - docker tag $CI_REGISTRY_IMAGE/$SHA_IMAGE $CI_REGISTRY_IMAGE/$LATEST_IMAGE
