@@ -57,14 +57,10 @@ azure-publish:
 
 azure_containerize:
   script:
+    - echo "from override stages"
     - git clone ${AZURE_CONTAINERIZE_REPOSITORY}
     - cp ./service-base-image/java/Dockerfile ./Dockerfile
-    - |
-      if [ "$AZURE_SERVICE"  == "entitlements" ]; then
-        TARGET=$(find ./target -name '*.jar' |head -n 1)
-      else
-        TARGET=$(find ./target -name '*-spring-boot.jar' |head -n 1)
-      fi
+    - TARGET=$(find ./target -name '*.jar' |head -n 1)
 
     # Gitlab Container Registry
     - echo "Startup Jar is $TARGET"
