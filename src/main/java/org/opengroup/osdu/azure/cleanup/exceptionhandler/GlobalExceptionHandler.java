@@ -133,6 +133,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             this.jaxRsDpsLogger.warning(exceptionMsg, e);
         }
 
-        return new ResponseEntity<>(gson.toJson(exceptionMsg), HttpStatus.resolve(e.getError().getCode()));
+        return new ResponseEntity<>(new ErrorResponse(e.getError().getCode(), e.getMessage(), e.getOriginalException().getMessage()), HttpStatus.resolve(e.getError().getCode()));
     }
 }

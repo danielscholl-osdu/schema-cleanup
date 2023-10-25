@@ -1,9 +1,0 @@
-
-t	java:S116"XRename this field "AAD_issuer_v1" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Œ‚æè8˜õˆã³1
-t	java:S116"XRename this field "AAD_issuer_v2" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÎÒÉË8™õˆã³1
->
-java:S1170"!Make this final field static too.(Œ‚æè8šõˆã³1
->
-java:S1170"!Make this final field static too.(ÎÒÉË8œõˆã³1
-c
-java:S1126$"AReplace this if-then-else statement by a single return statement.(Á´â²üÿÿÿÿ8­õˆã³1
