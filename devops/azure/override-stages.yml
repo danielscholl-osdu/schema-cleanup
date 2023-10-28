@@ -84,8 +84,8 @@ azure_containerize:
 azure_deploy:
   script:
     # Install Service
-    cd devops/azure
-    echo "[WARN] No (HELM_CHART_OCI) var found, using /devops/azure to install"
+    - cd devops/azure
+    - echo "[WARN] No (HELM_CHART_OCI) var found, using /devops/azure to install"
     - >-
       helm upgrade -i schema-cleanup . -n osdu --wait --timeout 5m
       -f devops/azure/values.yaml
