@@ -1,5 +1,6 @@
 variables:
   AZURE_BUILD_SUBDIR: /
+  AZURE_HELM_SUBDIR: devops/azure
 include:
  - project: "osdu/platform/ci-cd-pipelines"
    file: "standard-setup.yml"
