@@ -88,7 +88,7 @@ azure_deploy:
     - echo "[WARN] No (HELM_CHART_OCI) var found, using /devops/azure to install"
     - >-
       helm upgrade -i schema-cleanup . -n osdu --wait --timeout 5m
-      -f devops/azure/values.yaml
+      -f values.yaml
       --set secret.blob_account_key=$AZURE_DP_BLOB_KEY
       --set secret.blob_account_name=$AZURE_DP_BLOB_ACCOUNT_NAME
       --set secret.cosmos_host=$AZURE_DP_COSMOS_HOST
