@@ -1,6 +1,4 @@
-
-
-azure_deploy:
+azure_containerize_helm:
   needs: []
   script:
       echo 'empty'
@@ -82,3 +80,28 @@ azure_containerize:
         docker tag $CI_REGISTRY_IMAGE/$SHA_IMAGE ${AZURE_REGISTRY}.azurecr.io/$RELEASE_IMAGE
         docker push ${AZURE_REGISTRY}.azurecr.io/$RELEASE_IMAGE
       fi
+
+azure_deploy:
+  script:
+    # Install Service
+    - helm show chart $HELM_CHART_OCI --version $HELM_CHART_OCI_VERSION
+    - >-
+      helm upgrade -i schema-cleanup $HELM_CHART_OCI --version $HELM_CHART_OCI_VERSION -n osdu --wait --timeout 5m
+      -f devops/azure/values.yaml
+      --set secret.blob_account_key=$AZURE_DP_BLOB_KEY
+      --set secret.blob_account_name=$AZURE_DP_BLOB_ACCOUNT_NAME
+      --set secret.cosmos_host=$AZURE_DP_COSMOS_HOST
+      --set secret.cosmos_key=$AZURE_DP_COSMOS_KEY
+      --set secret.schema_query_params_id=$SCHEMA_KIND
+      
+    - POD_SERVICE_NAME=schema-cleanup
+    - pod=$(kubectl get pod -n osdu|grep $POD_SERVICE_NAME |tail -1 |awk '{print $1}') || echo "[WARN] Not able to get pod but helm upgrade was successful"
+    - status=$(kubectl wait -n osdu --for=condition=Ready pod/$pod --timeout=300s)
+    - if [[ "$status" != *"met"* ]]; then echo "POD didn't start correctly" ; exit 1 ; fi
+    - |
+      echo "AZURE_REGISTRY_TOKEN=$(az acr login -n $AZURE_REGISTRY --expose-token --query 'accessToken' -otsv)" >> ${CI_PROJECT_DIR}/acr_tokens.env
+      echo "DST_REGISTRY_TOKEN=$(az acr login -n msosdu --expose-token --query 'accessToken' -otsv)" >> ${CI_PROJECT_DIR}/acr_tokens.env
+  artifacts:
+    reports:
+      dotenv: ${CI_PROJECT_DIR}/acr_tokens.env
+
