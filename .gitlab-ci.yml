@@ -1,6 +1,7 @@
 variables:
   AZURE_BUILD_SUBDIR: /
-  AZURE_HELM_SUBDIR: devops/azure
+  SCHEMA_KIND: opendes:SchemaSanityTest:testSource:testschema
+  
 include:
  - project: "osdu/platform/ci-cd-pipelines"
    file: "standard-setup.yml"
