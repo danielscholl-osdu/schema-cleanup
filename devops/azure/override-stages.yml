@@ -1,9 +1,4 @@
-azure_containerize_helm:
-  needs: []
-  script:
-      echo 'empty'
-  only:
-      - $DISABLED == 'true'
+
 
 azure_deploy:
   needs: []
