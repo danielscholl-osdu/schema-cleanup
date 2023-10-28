@@ -19,7 +19,7 @@ global:
 
 
 image:
-  repository: osdumvpcrglabqh63cr.azurecr.io/schema-cleanup-main
+  repository: osdumvpcrglabqh63cr.azurecr.io
   tag: latest
 
 istioDnsHost: "osdu-glab.msft-osdu-test.org"
@@ -35,11 +35,11 @@ config:
     memory: "500Mi"
 
 secret:
-  blob_account_key: <key>
-  blob_account_name: <blob_account_name>
-  cosmos_host: <cosmos_host>
-  cosmos_key: <cosmos_key>
-  schema_query_params_id: <id>
+  blob_account_key: <blobaccountkey>
+  blob_account_name: <blobaccountname>
+  cosmos_host: <cosmoshost>
+  cosmos_key: <cosmoskey>
+  schema_query_params_id: <kindtodelete>
 
 
 env: glab
