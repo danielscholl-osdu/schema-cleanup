@@ -1,6 +1,6 @@
 variables:
   AZURE_BUILD_SUBDIR: /
-  SCHEMA_KIND: opendes:SchemaSanityTest:testSource:testschema
+  SCHEMA_KIND: opendes:SchemaSanityTest:testSource:testEntity
 
 include:
  - project: "osdu/platform/ci-cd-pipelines"
@@ -35,3 +35,13 @@ fossa-check-notice:
 azure_containerize:
   variables:
     AZURE_CONTAINERIZE_REPOSITORY: "-b jdk-17 https://gitlab-ci-token:${CI_JOB_TOKEN}@community.opengroup.org/osdu/platform/deployment-and-operations/base-containers-azure/service-base-image"
+
+
+clean-test-schemas:
+  tags: ["osdu-medium"]
+  image: curlimages/curl
+  stage: clean
+  needs: ["azure_test"]
+  script:
+  - echo "deleting test schemas.."
+  - curl -v --location --request POST 'https://${AZURE_DNS_NAME}/api/schema-cleanup-service/v1/schemas'
