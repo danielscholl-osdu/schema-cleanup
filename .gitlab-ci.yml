@@ -44,4 +44,4 @@ clean-test-schemas:
   # needs: ["azure_test"]
   script:
   - echo "deleting test schemas.."
-  - curl -v --location --request POST 'https://${AZURE_DNS_NAME}/api/schema-cleanup-service/v1/schemas'
+  - curl -v --location --request POST 'https://${AZURE_DNS_NAME}/api/schema-cleanup-service/v1/schemas' 
