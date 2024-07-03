@@ -94,7 +94,11 @@ azure_deploy:
       --set secret.cosmos_host=$AZURE_DP_COSMOS_HOST
       --set secret.cosmos_key=$AZURE_DP_COSMOS_KEY
       --set secret.schema_query_params_id=$SCHEMA_KIND
-      
+      --set secret.system_blob_account_key=$SYSTEM_AZURE_BLOB_KEY
+      --set secret.system_blob_account_name=$SYSTEM_AZURE_BLOB_ACCOUNT_NAME
+      --set secret.system_cosmos_host=$SYSTEM_AZURE_COSMOS_HOST
+      --set secret.system_cosmos_key=$SYSTEM_AZURE_COSMOS_KEY
+      --set secret.system_schema_query_params_id=$SYSTEM_SCHEMA_KIND
     - POD_SERVICE_NAME=schema-cleanup
     - pod=$(kubectl get pod -n osdu|grep $POD_SERVICE_NAME |tail -1 |awk '{print $1}') || echo "[WARN] Not able to get pod but helm upgrade was successful"
     - status=$(kubectl wait -n osdu --for=condition=Ready pod/$pod --timeout=300s)
@@ -105,4 +109,3 @@ azure_deploy:
   artifacts:
     reports:
       dotenv: ${CI_PROJECT_DIR}/acr_tokens.env
-
