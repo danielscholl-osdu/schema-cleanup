@@ -1,7 +1,7 @@
 variables:
   AZURE_BUILD_SUBDIR: /
   SCHEMA_KIND: opendes:SchemaSanityTest:testSource:testEntity
-
+  SYSTEM_SCHEMA_KIND: SchemaSanityTest:testSource:testEntity
 include:
  - project: "osdu/platform/ci-cd-pipelines"
    file: "standard-setup.yml"
@@ -35,7 +35,6 @@ fossa-check-notice:
 azure_containerize:
   variables:
     AZURE_CONTAINERIZE_REPOSITORY: "-b jdk-17 https://gitlab-ci-token:${CI_JOB_TOKEN}@community.opengroup.org/osdu/platform/deployment-and-operations/base-containers-azure/service-base-image"
-
 
 clean-test-schemas:
   tags: ["osdu-medium"]
