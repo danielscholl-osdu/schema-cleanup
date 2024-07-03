@@ -58,4 +58,33 @@ spec:
              secretKeyRef:
               name: schema-cleanup-secret
               key: schema_query_params_id
-      
+          - name: system_blob_account_key
+            valueFrom:
+              secretKeyRef:
+                name: schema-cleanup-secret
+                key: system_blob_account_key
+          - name: system_blob_account_name
+            valueFrom:
+              secretKeyRef:
+                name: schema-cleanup-secret
+                key: system_blob_account_name
+          - name: system_cosmos_host
+            valueFrom:
+              secretKeyRef:
+                name: schema-cleanup-secret
+                key: system_cosmos_host
+          - name: system_cosmos_key
+            valueFrom:
+              secretKeyRef:
+                name: schema-cleanup-secret
+                key: system_cosmos_key
+          - name: system_schema_query_params_id
+            valueFrom:
+              secretKeyRef:
+                name: schema-cleanup-secret
+                key: system_schema_query_params_id
+          - name: system_schema_query_params_id
+            valueFrom:
+              secretKeyRef:
+                name: schema-cleanup-secret
+                key: system_schema_query_params_id

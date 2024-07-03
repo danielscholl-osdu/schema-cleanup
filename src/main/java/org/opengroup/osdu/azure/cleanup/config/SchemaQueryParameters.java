@@ -9,4 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class SchemaQueryParameters {
     @Value("${schema.query_params.id}")
     private String id;
+
+    @Value("${system.schema.query_params.id}")
+    private String systemId;
 }

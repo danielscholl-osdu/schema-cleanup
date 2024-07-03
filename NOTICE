@@ -11,7 +11,7 @@ The following software have components provided under the terms of this license:
 - ASM based accessors helper used by json-smart (from https://urielch.github.io/)
 - Apache Commons Codec (from http://commons.apache.org/proper/commons-codec/, https://commons.apache.org/proper/commons-codec/)
 - Apache Commons Lang (from https://commons.apache.org/proper/commons-lang/)
-- Apache Commons Logging (from http://commons.apache.org/logging/, http://commons.apache.org/proper/commons-logging/)
+- Apache Commons Logging (from http://commons.apache.org/logging/, http://commons.apache.org/proper/commons-logging/, https://commons.apache.org/proper/commons-logging/)
 - Apache HttpClient (from http://hc.apache.org/httpcomponents-client, http://hc.apache.org/httpcomponents-client-ga)
 - Apache HttpClient Cache (from http://hc.apache.org/httpcomponents-client, http://hc.apache.org/httpcomponents-client-ga)
 - Apache HttpCore (from http://hc.apache.org/httpcomponents-core-ga, http://hc.apache.org/httpcomponents-core-ga/, http://hc.apache.org/httpcomponents-core/)
@@ -44,9 +44,9 @@ The following software have components provided under the terms of this license:
 - Jackson-dataformat-XML (from http://wiki.fasterxml.com/JacksonExtensionXmlDataBinding, https://github.com/FasterXML/jackson-dataformat-xml)
 - Jackson-dataformat-YAML (from https://github.com/FasterXML/jackson, https://github.com/FasterXML/jackson-dataformats-text)
 - Jackson-module-parameter-names (from https://repo1.maven.org/maven2/com/fasterxml/jackson/module/jackson-module-parameter-names)
-- Jakarta Bean Validation API (from https://beanvalidation.org)
+- Jakarta Validation API (from https://beanvalidation.org)
 - Java Architecture for XML Binding (from http://jaxb.java.net/, https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api)
-- Javassist (from http://www.javassist.org/)
+- Javassist (from http://www.javassist.org/, https://www.javassist.org/)
 - Metrics Core (from https://repo1.maven.org/maven2/io/dropwizard/metrics/metrics-core)
 - Microsoft Azure Java Core Library (from https://github.com/Azure/azure-sdk-for-java)
 - Microsoft Azure Netty HTTP Client Library (from https://github.com/Azure/azure-sdk-for-java)
@@ -156,6 +156,7 @@ The following software have components provided under the terms of this license:
 
 - Guava: Google Core Libraries for Java (from http://code.google.com/p/guava-libraries, https://github.com/google/guava, https://repo1.maven.org/maven2/com/google/guava/guava)
 - HdrHistogram (from http://hdrhistogram.github.io/HdrHistogram/)
+- Hibernate Validator (from https://repo1.maven.org/maven2/org/hibernate/hibernate-validator, https://repo1.maven.org/maven2/org/hibernate/validator/hibernate-validator)
 - LatencyUtils (from http://latencyutils.github.io/LatencyUtils/)
 - Netty/Common (from https://repo1.maven.org/maven2/io/netty/netty-common)
 - reactive-streams (from http://www.reactive-streams.org/)
@@ -183,8 +184,6 @@ EPL-1.0
 ========================================================================
 The following software have components provided under the terms of this license:
 
-- Jakarta Annotations API (from https://projects.eclipse.org/projects/ee4j.ca)
-- Jakarta Bean Validation API (from https://beanvalidation.org)
 - Logback Core Module (from http://logback.qos.ch, https://repo1.maven.org/maven2/ch/qos/logback/logback-core)
 
 ========================================================================
@@ -193,14 +192,13 @@ EPL-2.0
 The following software have components provided under the terms of this license:
 
 - Jakarta Annotations API (from https://projects.eclipse.org/projects/ee4j.ca)
-- Jakarta Bean Validation API (from https://beanvalidation.org)
+- Jakarta Validation API (from https://beanvalidation.org)
 
 ========================================================================
 GPL-2.0-only
 ========================================================================
 The following software have components provided under the terms of this license:
 
-- Jakarta Annotations API (from https://projects.eclipse.org/projects/ee4j.ca)
 - tomcat-embed-core (from http://tomcat.apache.org/)
 
 ========================================================================
@@ -209,17 +207,10 @@ GPL-2.0-with-classpath-exception
 The following software have components provided under the terms of this license:
 
 - Jakarta Annotations API (from https://projects.eclipse.org/projects/ee4j.ca)
-- Jakarta Bean Validation API (from https://beanvalidation.org)
+- Jakarta Validation API (from https://beanvalidation.org)
 - Java Architecture for XML Binding (from http://jaxb.java.net/, https://repo1.maven.org/maven2/javax/xml/bind/jaxb-api)
 - javax.annotation API (from http://jcp.org/en/jsr/detail?id=250)
 - tomcat-embed-core (from http://tomcat.apache.org/)
-
-========================================================================
-GPL-3.0-only
-========================================================================
-The following software have components provided under the terms of this license:
-
-- Jakarta Annotations API (from https://projects.eclipse.org/projects/ee4j.ca)
 
 ========================================================================
 ISC
@@ -241,14 +232,13 @@ LGPL-2.1-or-later
 ========================================================================
 The following software have components provided under the terms of this license:
 
-- Javassist (from http://www.javassist.org/)
+- Javassist (from http://www.javassist.org/, https://www.javassist.org/)
 
 ========================================================================
 MIT
 ========================================================================
 The following software have components provided under the terms of this license:
 
-- Apache HttpClient Cache (from http://hc.apache.org/httpcomponents-client, http://hc.apache.org/httpcomponents-client-ga)
 - Apache Log4j API (from https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-api)
 - Apache Log4j to SLF4J Adapter (from https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-to-slf4j)
 - Azure Spring Boot AutoConfigure (from https://github.com/Azure/azure-sdk-for-java, https://github.com/Microsoft/azure-spring-boot)
@@ -275,7 +265,7 @@ MPL-1.1
 ========================================================================
 The following software have components provided under the terms of this license:
 
-- Javassist (from http://www.javassist.org/)
+- Javassist (from http://www.javassist.org/, https://www.javassist.org/)
 
 ========================================================================
 WTFPL
@@ -292,11 +282,11 @@ The following software have components provided under the terms of this license:
 - Netty/Codec (from https://repo1.maven.org/maven2/io/netty/netty-codec)
 
 ========================================================================
-mit-old-style-no-advert
+gpl-2.0-classpath
 ========================================================================
 The following software have components provided under the terms of this license:
 
-- Brave (from https://repo1.maven.org/maven2/io/zipkin/brave/brave)
+- Jakarta Annotations API (from https://projects.eclipse.org/projects/ee4j.ca)
 
 ========================================================================
 public-domain
