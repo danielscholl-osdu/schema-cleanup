@@ -40,6 +40,10 @@ secret:
   cosmos_host: <cosmoshost>
   cosmos_key: <cosmoskey>
   schema_query_params_id: <kindtodelete>
-
+  system_blob_account_key: <systemblobaccountkey>
+  system_blob_account_name: <systemblobaccountname>
+  system_cosmos_host: <systemcosmoshost>
+  system_cosmos_key: <systemcosmoskey>
+  system_schema_query_params_id: <systemkindtodelete>
 
 env: glab

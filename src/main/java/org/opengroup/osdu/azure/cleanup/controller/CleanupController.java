@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("schemas")
@@ -16,9 +17,8 @@ public class CleanupController {
     private CleanupService cleanupService;
 
     @PostMapping()
-    public ResponseEntity<CleanupResponse> cleanupSchemas() {
-        CleanupResponse cleanupResponse = cleanupService.cleanupRecords();
-        return new ResponseEntity<>(cleanupResponse, cleanupResponse.statusCode());
+    public Mono<ResponseEntity<CleanupResponse>> cleanupSchemas() {
+        return cleanupService.cleanupRecords().map( cleanupResponse -> new ResponseEntity<>(cleanupResponse, cleanupResponse.statusCode()));
     }
 
 }

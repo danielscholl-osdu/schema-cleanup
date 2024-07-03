@@ -11,4 +11,9 @@ public class CosmosConfig {
     private String cosmosKey;
     @Value("${cosmos.host}")
     private String cosmosHost;
+
+    @Value("${system.cosmos.key}")
+    private String systemCosmosKey;
+    @Value("${system.cosmos.host}")
+    private String systemCosmosHost;
 }
