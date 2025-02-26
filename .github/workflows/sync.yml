@@ -56,6 +56,10 @@ jobs:
           gh label create needs-resolution \
             --description "Requires manual conflict resolution" \
             --color "fbca04" || true
+            
+          gh label create sync-update \
+            --description "Tracks upstream sync updates" \
+            --color "0075ca" || true
 
       - name: Create sync branch and PR
         env:
@@ -91,17 +95,32 @@ jobs:
           CHANGES=$(git log --pretty=format:"* %s" fork_upstream..$SYNC_BRANCH)
           
           # Create PR with detailed changes
-          gh pr create \
+          PR_NUMBER=$(gh pr create \
             --base fork_upstream \
             --head $SYNC_BRANCH \
             --title "⬆️ Sync with upstream $UPSTREAM_VERSION" \
             --body "Automated PR to sync with upstream repository changes.
 
           ### Changes from upstream:
-          $CHANGES"
+          $CHANGES" \
+            --json number -q .number)
+            
+          # Create a linked issue that will close when the PR is merged
+          ISSUE_BODY="This issue tracks the upstream sync PR #${PR_NUMBER}.
+
+          ### Changes from upstream:
+          $CHANGES
           
-          # Auto-merge the PR we just created using squash method
-          gh pr merge $SYNC_BRANCH --squash --admin
+          This issue will be automatically closed when PR #${PR_NUMBER} is merged.
+          
+          @${{ github.repository_owner }}"
+          
+          gh issue create \
+            --title "🔄 Upstream Sync - $(date +%Y-%m-%d)" \
+            --body "$ISSUE_BODY" \
+            --label "sync-update"
+            
+          echo "::notice::Created PR #${PR_NUMBER} and linked issue for upstream sync"
 
       - name: Create issue on failure
         if: failure()
