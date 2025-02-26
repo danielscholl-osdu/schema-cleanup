@@ -64,135 +64,45 @@ jobs:
           # Generate branch names
           DATE_SUFFIX=$(date +%Y%m%d)
           SYNC_BRANCH="sync/upstream-${DATE_SUFFIX}"
-          CONFLICT_BRANCH="sync/upstream-conflicts-${DATE_SUFFIX}"
           
           # Fetch and checkout fork_upstream branch
           git fetch origin fork_upstream
           git checkout -b fork_upstream origin/fork_upstream
 
-          # Try to merge upstream changes
-          if ! git merge upstream/$DEFAULT_BRANCH --no-edit; then
-            echo "::warning::Merge conflicts detected. Creating conflict resolution PR."
-            
-            # Get conflict details before aborting the merge
-            CONFLICTS=$(git diff --name-only --diff-filter=U)
-            STATUS=$(git status -s)
-            
-            # Abort the merge to get to a clean state
-            git merge --abort
-            
-            # Create a new branch based on fork_upstream for the conflict resolution
-            # This ensures the branch has shared history with fork_upstream
-            git checkout -b $CONFLICT_BRANCH
-            
-            # Create directories for comparison
-            mkdir -p .sync-compare/upstream
-            mkdir -p .sync-compare/fork
-            
-            # Save upstream files for comparison
-            git checkout upstream/$DEFAULT_BRANCH
-            for file in $(git ls-files); do
-              # Create directory structure if needed
-              mkdir -p ".sync-compare/upstream/$(dirname "$file")"
-              # Copy the file
-              cp "$file" ".sync-compare/upstream/$file" 2>/dev/null || true
-            done
-            
-            # Save fork files for comparison
-            git checkout fork_upstream
-            for file in $(git ls-files); do
-              # Create directory structure if needed
-              mkdir -p ".sync-compare/fork/$(dirname "$file")"
-              # Copy the file
-              cp "$file" ".sync-compare/fork/$file" 2>/dev/null || true
-            done
-            
-            # Check out our conflict branch again
-            git checkout $CONFLICT_BRANCH
-            
-            # Add all the comparison files
-            git add .sync-compare
-            git commit -m "Add upstream and fork state for conflict resolution"
-            
-            # List the conflicting files in the commit message
-            git commit --allow-empty -m "Conflicts detected in: $CONFLICTS"
-            
-            # Push the branch with comparison content
-            git push origin $CONFLICT_BRANCH
-            
-            # Create conflict resolution PR
-            BODY="Conflicts detected while syncing with upstream.
-
-            ### Conflicts
-            \`\`\`
-            $STATUS
-            \`\`\`
-
-            This PR contains both the upstream and fork versions of files to help with conflict resolution.
-            - Upstream files are in the \`.sync-compare/upstream/\` directory
-            - Fork files are in the \`.sync-compare/fork/\` directory
-
-            Please resolve these conflicts by comparing the two versions and manually applying the necessary changes to the main files."
-
-            gh pr create \
-              --base fork_upstream \
-              --head $CONFLICT_BRANCH \
-              --title "⚠️ Upstream Sync Conflicts - Manual Resolution Required" \
-              --body "$BODY"
-            
-            # Create conflict resolution issue with more details
-            ISSUE_BODY="Merge conflicts were detected while syncing from upstream.
-
-            ### Affected Files
-            \`\`\`
-            $CONFLICTS
-            \`\`\`
-
-            ### Resolution Steps
-            1. Check out the conflict resolution PR: ${{ github.server_url }}/${{ github.repository }}/pulls
-            2. This PR contains both versions of files in the .sync-compare directory
-            3. Use the comparison directory to help resolve the conflicts by hand
-            4. Create a new branch from fork_upstream and manually apply your changes
-            5. Test the changes thoroughly before merging
-
-            ### Additional Details
-            - Branch with comparison files: \`$CONFLICT_BRANCH\`
-            - Target branch: \`fork_upstream\`
-            - Upstream branch: \`$DEFAULT_BRANCH\`
-
-            @${{ github.repository_owner }}"
-
-            gh issue create \
-              --title "🔄 Upstream Sync Conflicts Detected $(date +%Y-%m-%d)" \
-              --body "$ISSUE_BODY" \
-              --label sync-failed \
-              --label needs-resolution
-            
-            exit 0  # Exit successfully after creating the issue and PR
-          fi
-
-          # If we're here, the merge succeeded
-          # Create a dedicated branch for the successful merge
+          # Create a new branch for the sync
           git checkout -b $SYNC_BRANCH
+          
+          # Try to merge upstream changes, automatically preferring upstream versions on conflict
+          git merge upstream/$DEFAULT_BRANCH -X theirs --no-edit
           
           # Check if there are any changes to commit
           if git diff --quiet fork_upstream; then
             echo "No changes to sync from upstream"
             exit 0
           fi
-
+          
           # Push changes
           git push origin $SYNC_BRANCH
 
           # Get upstream version for PR description
           UPSTREAM_VERSION=$(git describe --tags --abbrev=0 upstream/$DEFAULT_BRANCH 2>/dev/null || echo "latest")
-
-          # Create PR
-          gh pr create \
+          
+          # Get the changes for the PR description
+          CHANGES=$(git log --pretty=format:"* %s" fork_upstream..$SYNC_BRANCH)
+          
+          # Create PR with detailed changes
+          PR_URL=$(gh pr create \
             --base fork_upstream \
             --head $SYNC_BRANCH \
             --title "⬆️ Sync with upstream $UPSTREAM_VERSION" \
-            --body "Automated PR to sync with upstream repository changes."
+            --body "Automated PR to sync with upstream repository changes.
+
+          ### Changes from upstream:
+          $CHANGES" \
+            --json url -q .url)
+          
+          # Auto-merge the PR
+          gh pr merge $PR_URL --merge --admin
 
       - name: Create issue on failure
         if: failure()
