@@ -94,58 +94,26 @@ jobs:
           # Get the changes for the PR description
           CHANGES=$(git log --pretty=format:"* %s" fork_upstream..$SYNC_BRANCH)
           
-          # Create PR and extract the number from the URL
+          # Create PR with a simple approach, avoiding complex quoting issues
+          echo "Creating PR from branch $SYNC_BRANCH to fork_upstream"
           PR_URL=$(gh pr create \
             --base fork_upstream \
             --head $SYNC_BRANCH \
             --title "⬆️ Sync with upstream $UPSTREAM_VERSION" \
-            --body "Automated PR to sync with upstream repository changes.
-
-          ### Changes from upstream:
-          $CHANGES")
+            --body "Automated PR to sync with upstream repository changes.")
           
-          # Extract PR number from URL - format is https://github.com/owner/repo/pull/NUMBER
-          PR_NUMBER=$(echo $PR_URL | grep -o '[0-9]*
-
-      - name: Create issue on failure
-        if: failure()
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-        run: |
-          ISSUE_BODY="The automated upstream sync workflow failed.
-
-          ### Error Details
-          Please check the workflow logs for more information:
-          ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
-          ### Manual Steps Required
-          1. Review the error logs
-          2. Resolve any conflicts
-          3. Re-run the sync workflow
-
-          @${{ github.repository_owner }}"
-
-          gh issue create \
-            --title "🔄 Upstream Sync Failed $(date +%Y-%m-%d)" \
-            --body "$ISSUE_BODY" \
-            --label sync-failed)
+          echo "PR created: $PR_URL"
+          
+          # Extract PR number with simple string manipulation
+          PR_NUMBER=$(basename $PR_URL)
+          echo "PR number: $PR_NUMBER"
             
-          # Create a linked issue that will close when the PR is merged
-          ISSUE_BODY="This issue tracks the upstream sync PR #${PR_NUMBER}.
-
-          ### Changes from upstream:
-          $CHANGES
-          
-          This issue will be automatically closed when PR #${PR_NUMBER} is merged.
-          
-          @${{ github.repository_owner }}"
-          
+          # Create a linked issue with basic content
+          echo "Creating linked issue for PR #$PR_NUMBER"
           gh issue create \
             --title "🔄 Upstream Sync - $(date +%Y-%m-%d)" \
-            --body "$ISSUE_BODY" \
+            --body "This issue tracks the upstream sync PR #$PR_NUMBER and will close automatically when the PR is merged." \
             --label "sync-update"
-            
-          echo "::notice::Created PR #${PR_NUMBER} and linked issue for upstream sync"
 
       - name: Create issue on failure
         if: failure()
@@ -168,4 +136,4 @@ jobs:
           gh issue create \
             --title "🔄 Upstream Sync Failed $(date +%Y-%m-%d)" \
             --body "$ISSUE_BODY" \
-            --label sync-failed
+            --label "sync-failed"
