@@ -44,6 +44,19 @@ jobs:
           fi
           echo "DEFAULT_BRANCH=$DEFAULT_BRANCH" >> $GITHUB_ENV
 
+      - name: Create required labels
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          # Create labels if they don't exist
+          gh label create sync-failed \
+            --description "Issues related to sync failures" \
+            --color "d73a4a" || true
+            
+          gh label create needs-resolution \
+            --description "Requires manual conflict resolution" \
+            --color "fbca04" || true
+
       - name: Create sync branch and PR
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
@@ -180,15 +193,6 @@ jobs:
             --head $SYNC_BRANCH \
             --title "⬆️ Sync with upstream $UPSTREAM_VERSION" \
             --body "Automated PR to sync with upstream repository changes."
-
-      - name: Create sync-failed label if it doesn't exist
-        if: failure()
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-        run: |
-          gh label create sync-failed \
-            --description "Issues related to sync failures" \
-            --color "d73a4a" || true
 
       - name: Create issue on failure
         if: failure()
