@@ -64,6 +64,11 @@ jobs:
       - name: Create sync branch and PR
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          AZURE_API_KEY: ${{ secrets.AZURE_API_KEY }}
+          AZURE_API_BASE: ${{ secrets.AZURE_API_BASE }}
+          AZURE_API_VERSION: ${{ secrets.AZURE_API_VERSION }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           # Generate branch names with timestamp for uniqueness
           DATE_SUFFIX=$(date +%Y%m%d-%H%M%S)
@@ -94,13 +99,61 @@ jobs:
           # Get the changes for the PR description
           CHANGES=$(git log --pretty=format:"* %s" fork_upstream..$SYNC_BRANCH)
           
-          # Create PR with a simple approach, avoiding complex quoting issues
+          # Check if any LLM API key is available for enhanced PR description
+          USE_LLM=false
+          LLM_MODEL=""
+          
+          # Check for Anthropic API key (default)
+          if [[ -n "$ANTHROPIC_API_KEY" ]]; then
+            USE_LLM=true
+            LLM_MODEL="claude-3.5-sonnet"
+            echo "Using Anthropic Claude 3.5 Sonnet for PR description generation"
+          
+          # Check for Azure OpenAI API key
+          elif [[ -n "$AZURE_API_KEY" && -n "$AZURE_API_BASE" ]]; then
+            USE_LLM=true
+            LLM_MODEL="azure/gpt-4o"
+            echo "Using Azure OpenAI GPT-4o for PR description generation"
+          
+          # Check for OpenAI API key
+          elif [[ -n "$OPENAI_API_KEY" ]]; then
+            USE_LLM=true
+            LLM_MODEL="gpt-4"
+            echo "Using OpenAI GPT-4 for PR description generation"
+          else
+            echo "No LLM API keys found. Using default PR description."
+          fi
+          
+          if [[ "$USE_LLM" == "true" ]]; then
+            echo "Installing aipr tool..."
+            pip install pr-generator-agent
+            
+            # Generate PR description using aipr
+            echo "Generating PR description using $LLM_MODEL..."
+            # Save current branch and target for reference
+            CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            TARGET_BRANCH="fork_upstream"
+            
+            # Use the aipr tool with the --vulns flag
+            PR_DESCRIPTION=$(aipr -t $TARGET_BRANCH --vulns -m $LLM_MODEL)
+            
+            echo "Generated enhanced PR description using $LLM_MODEL"
+          else
+            # Use default PR description
+            PR_DESCRIPTION="Automated PR to sync with upstream $UPSTREAM_VERSION.
+
+### Changes from upstream:
+$CHANGES"
+            echo "Using default PR description"
+          fi
+          
+          # Create PR with description
           echo "Creating PR from branch $SYNC_BRANCH to fork_upstream"
           PR_URL=$(gh pr create \
             --base fork_upstream \
             --head $SYNC_BRANCH \
             --title "⬆️ Sync with upstream $UPSTREAM_VERSION" \
-            --body "Automated PR to sync with upstream repository changes.")
+            --body "$PR_DESCRIPTION")
           
           echo "PR created: $PR_URL"
           
