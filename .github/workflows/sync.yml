@@ -48,13 +48,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
+          # Generate branch names
+          DATE_SUFFIX=$(date +%Y%m%d)
+          SYNC_BRANCH="sync/upstream-${DATE_SUFFIX}"
+          CONFLICT_BRANCH="sync/upstream-conflicts-${DATE_SUFFIX}"
+          
           # Fetch and checkout fork_upstream branch
           git fetch origin fork_upstream
           git checkout -b fork_upstream origin/fork_upstream
-
-          # Create a new branch for the sync
-          SYNC_BRANCH="sync/upstream-$(date +%Y%m%d)"
-          git checkout -b $SYNC_BRANCH
 
           # Try to merge upstream changes
           if ! git merge upstream/$DEFAULT_BRANCH --no-edit; then
@@ -67,8 +68,8 @@ jobs:
             # Abort the merge to get to a clean state
             git merge --abort
             
-            # Create a temporary merge commit to show difference
-            git checkout --orphan temp_$SYNC_BRANCH
+            # Create a temporary merge commit to show upstream state
+            git checkout --orphan temp_branch
             git reset --hard
             
             # Copy upstream files
@@ -76,11 +77,11 @@ jobs:
             git add .
             git commit -m "upstream/$DEFAULT_BRANCH state"
             
-            # Now create the PR branch from this clean state
-            git checkout -b $SYNC_BRANCH temp_$SYNC_BRANCH
-
+            # Create the conflict resolution branch from this clean state
+            git checkout -b $CONFLICT_BRANCH
+            
             # Push the branch with upstream content
-            git push origin $SYNC_BRANCH
+            git push origin $CONFLICT_BRANCH
             
             # Create conflict resolution PR
             BODY="Conflicts detected while syncing with upstream. This PR contains the current upstream state.
@@ -94,7 +95,7 @@ jobs:
 
             gh pr create \
               --base fork_upstream \
-              --head $SYNC_BRANCH \
+              --head $CONFLICT_BRANCH \
               --title "⚠️ Upstream Sync Conflicts - Manual Resolution Required" \
               --body "$BODY"
             
@@ -114,7 +115,7 @@ jobs:
             5. Test the changes thoroughly before merging
 
             ### Additional Details
-            - Branch with upstream version: \`$SYNC_BRANCH\`
+            - Branch with upstream version: \`$CONFLICT_BRANCH\`
             - Target branch: \`fork_upstream\`
             - Upstream branch: \`$DEFAULT_BRANCH\`
 
@@ -129,6 +130,10 @@ jobs:
             exit 0  # Exit successfully after creating the issue and PR
           fi
 
+          # If we're here, the merge succeeded
+          # Create a dedicated branch for the successful merge
+          git checkout -b $SYNC_BRANCH
+          
           # Check if there are any changes to commit
           if git diff --quiet fork_upstream; then
             echo "No changes to sync from upstream"
