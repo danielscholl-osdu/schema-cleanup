@@ -138,7 +138,10 @@ jobs:
             echo "Generated enhanced PR description using $LLM_MODEL"
           else
             # Use default PR description
-            PR_DESCRIPTION="Automated PR to sync with upstream ${UPSTREAM_VERSION}.\\n\\n### Changes from upstream:\\n${CHANGES}"
+            PR_DESCRIPTION="Automated PR to sync with upstream repository changes.
+
+            ### Changes from upstream:
+            ${CHANGES}"
             echo "Using default PR description"
           fi
           
