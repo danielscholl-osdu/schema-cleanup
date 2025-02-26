@@ -61,8 +61,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
-          # Generate branch names
-          DATE_SUFFIX=$(date +%Y%m%d)
+          # Generate branch names with timestamp for uniqueness
+          DATE_SUFFIX=$(date +%Y%m%d-%H%M%S)
           SYNC_BRANCH="sync/upstream-${DATE_SUFFIX}"
           
           # Fetch and checkout fork_upstream branch
@@ -81,8 +81,8 @@ jobs:
             exit 0
           fi
           
-          # Push changes
-          git push origin $SYNC_BRANCH
+          # Push changes with force flag to handle any branch name conflicts
+          git push -f origin $SYNC_BRANCH
 
           # Get upstream version for PR description
           UPSTREAM_VERSION=$(git describe --tags --abbrev=0 upstream/$DEFAULT_BRANCH 2>/dev/null || echo "latest")
