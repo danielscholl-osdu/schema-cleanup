@@ -100,8 +100,8 @@ jobs:
           ### Changes from upstream:
           $CHANGES"
           
-          # Auto-merge the PR we just created (using branch name instead of PR URL)
-          gh pr merge $SYNC_BRANCH --merge --admin
+          # Auto-merge the PR we just created using squash method
+          gh pr merge $SYNC_BRANCH --squash --admin
 
       - name: Create issue on failure
         if: failure()
