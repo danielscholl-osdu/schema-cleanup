@@ -68,30 +68,43 @@ jobs:
             # Abort the merge to get to a clean state
             git merge --abort
             
-            # Create a temporary merge commit to show upstream state
-            git checkout --orphan temp_branch
-            git reset --hard
-            
-            # Copy upstream files
-            git checkout upstream/$DEFAULT_BRANCH -- .
-            git add .
-            git commit -m "upstream/$DEFAULT_BRANCH state"
-            
-            # Create the conflict resolution branch from this clean state
+            # Create a new branch based on fork_upstream for the conflict resolution
+            # This ensures the branch has shared history with fork_upstream
             git checkout -b $CONFLICT_BRANCH
             
-            # Push the branch with upstream content
+            # Create a commit that shows both states for easier comparison
+            mkdir -p .sync-compare/upstream
+            mkdir -p .sync-compare/fork
+            
+            # Save upstream files in special directory for comparison
+            git checkout upstream/$DEFAULT_BRANCH -- .
+            cp -R ./* .sync-compare/upstream/ 2>/dev/null || true
+            git checkout fork_upstream -- .
+            cp -R ./* .sync-compare/fork/ 2>/dev/null || true
+            
+            # Add all the comparison files
+            git add .sync-compare
+            git commit -m "Add upstream and fork state for conflict resolution"
+            
+            # List the conflicting files in the commit message
+            git commit --allow-empty -m "Conflicts detected in: $CONFLICTS"
+            
+            # Push the branch with comparison content
             git push origin $CONFLICT_BRANCH
             
             # Create conflict resolution PR
-            BODY="Conflicts detected while syncing with upstream. This PR contains the current upstream state.
+            BODY="Conflicts detected while syncing with upstream.
 
             ### Conflicts
             \`\`\`
             $STATUS
             \`\`\`
 
-            Please resolve these conflicts manually by comparing with fork_upstream branch."
+            This PR contains both the upstream and fork versions of files to help with conflict resolution.
+            - Upstream files are in the `.sync-compare/upstream/` directory
+            - Fork files are in the `.sync-compare/fork/` directory
+
+            Please resolve these conflicts by comparing the two versions and manually applying the necessary changes to the main files."
 
             gh pr create \
               --base fork_upstream \
@@ -109,13 +122,13 @@ jobs:
 
             ### Resolution Steps
             1. Check out the conflict resolution PR: ${{ github.server_url }}/${{ github.repository }}/pulls
-            2. This PR contains the upstream version of the files
-            3. Compare with fork_upstream to manually resolve conflicts
-            4. You may need to cherry-pick changes or manually merge files
+            2. This PR contains both versions of files in the .sync-compare directory
+            3. Use the comparison directory to help resolve the conflicts by hand
+            4. Create a new branch from fork_upstream and manually apply your changes
             5. Test the changes thoroughly before merging
 
             ### Additional Details
-            - Branch with upstream version: \`$CONFLICT_BRANCH\`
+            - Branch with comparison files: \`$CONFLICT_BRANCH\`
             - Target branch: \`fork_upstream\`
             - Upstream branch: \`$DEFAULT_BRANCH\`
 
