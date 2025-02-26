@@ -56,23 +56,41 @@ jobs:
           SYNC_BRANCH="sync/upstream-$(date +%Y%m%d)"
           git checkout -b $SYNC_BRANCH
 
-          # Merge upstream changes
+          # Try to merge upstream changes
           if ! git merge upstream/$DEFAULT_BRANCH --no-edit; then
-            echo "::error::Merge conflicts detected. Manual intervention required."
+            echo "::warning::Merge conflicts detected. Creating conflict resolution PR."
             
-            # Get conflict details
+            # Get conflict details before aborting the merge
             CONFLICTS=$(git diff --name-only --diff-filter=U)
             STATUS=$(git status -s)
             
+            # Abort the merge to get to a clean state
+            git merge --abort
+            
+            # Create a temporary merge commit to show difference
+            git checkout --orphan temp_$SYNC_BRANCH
+            git reset --hard
+            
+            # Copy upstream files
+            git checkout upstream/$DEFAULT_BRANCH -- .
+            git add .
+            git commit -m "upstream/$DEFAULT_BRANCH state"
+            
+            # Now create the PR branch from this clean state
+            git checkout -b $SYNC_BRANCH temp_$SYNC_BRANCH
+
+            # Push the branch with upstream content
+            git push origin $SYNC_BRANCH
+            
             # Create conflict resolution PR
-            BODY="Conflicts detected while syncing with upstream.
+            BODY="Conflicts detected while syncing with upstream. This PR contains the current upstream state.
 
             ### Conflicts
             \`\`\`
             $STATUS
             \`\`\`
 
-            Please resolve these conflicts manually."
+            Please resolve these conflicts manually by comparing with fork_upstream branch."
 
             gh pr create \
               --base fork_upstream \
@@ -80,7 +98,7 @@ jobs:
               --title "⚠️ Upstream Sync Conflicts - Manual Resolution Required" \
               --body "$BODY"
             
-            # Create conflict resolution issue
+            # Create conflict resolution issue with more details
             ISSUE_BODY="Merge conflicts were detected while syncing from upstream.
 
             ### Affected Files
@@ -90,12 +108,13 @@ jobs:
 
             ### Resolution Steps
             1. Check out the conflict resolution PR: ${{ github.server_url }}/${{ github.repository }}/pulls
-            2. Review and resolve conflicts in the affected files
-            3. Test the changes thoroughly
-            4. Update the PR for review
+            2. This PR contains the upstream version of the files
+            3. Compare with fork_upstream to manually resolve conflicts
+            4. You may need to cherry-pick changes or manually merge files
+            5. Test the changes thoroughly before merging
 
             ### Additional Details
-            - Branch with conflicts: \`$SYNC_BRANCH\`
+            - Branch with upstream version: \`$SYNC_BRANCH\`
             - Target branch: \`fork_upstream\`
             - Upstream branch: \`$DEFAULT_BRANCH\`
 
@@ -107,7 +126,7 @@ jobs:
               --label sync-failed \
               --label needs-resolution
             
-            exit 1
+            exit 0  # Exit successfully after creating the issue and PR
           fi
 
           # Check if there are any changes to commit
