@@ -108,13 +108,11 @@ jobs:
             USE_LLM=true
             LLM_MODEL="claude-3.5-sonnet"
             echo "Using Anthropic Claude 3.5 Sonnet for PR description generation"
-          
           # Check for Azure OpenAI API key
           elif [[ -n "$AZURE_API_KEY" && -n "$AZURE_API_BASE" ]]; then
             USE_LLM=true
             LLM_MODEL="azure/gpt-4o"
             echo "Using Azure OpenAI GPT-4o for PR description generation"
-          
           # Check for OpenAI API key
           elif [[ -n "$OPENAI_API_KEY" ]]; then
             USE_LLM=true
