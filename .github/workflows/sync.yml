@@ -91,18 +91,17 @@ jobs:
           CHANGES=$(git log --pretty=format:"* %s" fork_upstream..$SYNC_BRANCH)
           
           # Create PR with detailed changes
-          PR_URL=$(gh pr create \
+          gh pr create \
             --base fork_upstream \
             --head $SYNC_BRANCH \
             --title "⬆️ Sync with upstream $UPSTREAM_VERSION" \
             --body "Automated PR to sync with upstream repository changes.
 
           ### Changes from upstream:
-          $CHANGES" \
-            --json url -q .url)
+          $CHANGES"
           
-          # Auto-merge the PR
-          gh pr merge $PR_URL --merge --admin
+          # Auto-merge the PR we just created (using branch name instead of PR URL)
+          gh pr merge $SYNC_BRANCH --merge --admin
 
       - name: Create issue on failure
         if: failure()
