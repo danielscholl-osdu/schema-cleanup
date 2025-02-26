@@ -72,15 +72,30 @@ jobs:
             # This ensures the branch has shared history with fork_upstream
             git checkout -b $CONFLICT_BRANCH
             
-            # Create a commit that shows both states for easier comparison
+            # Create directories for comparison
             mkdir -p .sync-compare/upstream
             mkdir -p .sync-compare/fork
             
-            # Save upstream files in special directory for comparison
-            git checkout upstream/$DEFAULT_BRANCH -- .
-            cp -R ./* .sync-compare/upstream/ 2>/dev/null || true
-            git checkout fork_upstream -- .
-            cp -R ./* .sync-compare/fork/ 2>/dev/null || true
+            # Save upstream files for comparison
+            git checkout upstream/$DEFAULT_BRANCH
+            for file in $(git ls-files); do
+              # Create directory structure if needed
+              mkdir -p ".sync-compare/upstream/$(dirname "$file")"
+              # Copy the file
+              cp "$file" ".sync-compare/upstream/$file" 2>/dev/null || true
+            done
+            
+            # Save fork files for comparison
+            git checkout fork_upstream
+            for file in $(git ls-files); do
+              # Create directory structure if needed
+              mkdir -p ".sync-compare/fork/$(dirname "$file")"
+              # Copy the file
+              cp "$file" ".sync-compare/fork/$file" 2>/dev/null || true
+            done
+            
+            # Check out our conflict branch again
+            git checkout $CONFLICT_BRANCH
             
             # Add all the comparison files
             git add .sync-compare
@@ -101,8 +116,8 @@ jobs:
             \`\`\`
 
             This PR contains both the upstream and fork versions of files to help with conflict resolution.
-            - Upstream files are in the `.sync-compare/upstream/` directory
-            - Fork files are in the `.sync-compare/fork/` directory
+            - Upstream files are in the \`.sync-compare/upstream/\` directory
+            - Fork files are in the \`.sync-compare/fork/\` directory
 
             Please resolve these conflicts by comparing the two versions and manually applying the necessary changes to the main files."
 
